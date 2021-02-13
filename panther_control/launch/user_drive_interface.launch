@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<!--
+Copyright (C) 2020, Raffaello Bonghi <raffaello@rnext.it>
+All rights reserved
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright 
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the copyright holder nor the names of its 
+   contributors may be used to endorse or promote products derived 
+   from this software without specific prior written permission.
+ 
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND 
+CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, 
+BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS 
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<launch>
+  <arg name="web"           default="false" />
+  <arg name="packages_port" default="8001" />
+  <arg name="marker"        default="true" />
+  <arg name="cmd_topic"     default="joy_teleop/cmd_vel" />
+
+  <!-- Output {screen, log} -->
+  <arg name="output"          default="log" />
+
+  <!-- Teleoperation mode -->
+  <include file="$(find panther_control)/launch/teleop.launch">
+    <arg name="cmd_topic"    value="$(arg cmd_topic)" />
+  </include>
+
+  <!-- Interactive maker -->
+  <group if="$(arg marker)">
+    <node pkg="interactive_marker_twist_server" type="marker_server" name="twist_marker_server" output="$(arg output)">
+      <param name="robot_name"    value="Panther" />
+      <param name="link_name"     value="base_link" />
+    </node>
+  </group>
+
+  <!-- Launch web controller -->
+  <group if="$(arg web)">
+    <include file="$(find ros_webconsole)/launch/ros_webconsole.launch">
+      <arg name="config"        value="$(find panther_control)/config/webconsole.yaml" />
+      <arg name="packages_port" value="$(arg packages_port)" />
+    </include>
+  </group>
+
+</launch>
